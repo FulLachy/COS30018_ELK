@@ -4,15 +4,88 @@ import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.TickerBehaviour;
+import jade.lang.acl.ACLMessage;
+import jade.lang.acl.UnreadableException;
 
 import java.util.*;
 
 public class MasterSchedulingAgent extends Agent{
 
-	private CyclicBehaviour reply;
+	//private CyclicBehaviour reply;
 	private TickerBehaviour count;
 	
-	public void activateCounter()
+	@Override
+	protected void setup()
+	{
+		//Print that the agent has been created
+		this.addBehaviour(new GetCarMessage());
+		
+		//Algorithm 
+		//
+	}
+	
+	private class GetCarMessage extends CyclicBehaviour
+	{
+		@Override
+		public void action()
+		{
+			System.out.println(getLocalName() + ": Waiting for Message");
+			
+			
+			
+			ACLMessage message = blockingReceive();
+			
+			if(message != null)
+			{
+				System.out.println(getLocalName() + ": Received Message");
+				ACLMessage reply = message.createReply();
+				
+				switch (reply.getPerformative())
+				{
+					case ACLMessage.REQUEST:
+						/*try
+						{
+							//obtain preferences here
+						} catch(UnreadableException ue)
+						{
+							ue.printStackTrace();
+						}*/	
+						
+						//Using Dummy as the Schedule is fine at the current time
+						boolean dummy = true;
+						
+						//if schedule is fine then proceed 
+						if (dummy)
+						{
+							reply.setPerformative(ACLMessage.AGREE);
+							reply.setContent("Scheduled");
+						
+						}
+						
+						//If the schedule is full or can't be moved, refuse
+						else
+						{
+							reply.setPerformative(ACLMessage.REFUSE);
+							reply.setContent("Cannot be Scheduled");
+						}
+						
+						send(reply);
+						System.out.println(getLocalName() + ": Sending Response");
+						break;
+					
+					case ACLMessage.CONFIRM:
+					
+						break;
+					
+					case ACLMessage.DISCONFIRM:
+						
+						break;
+				}
+			
+			}
+		}
+	}
+	/*public void activateCounter()
 	{
 		count = new TickerBehaviour(this,1000)
 		{
@@ -32,43 +105,33 @@ public class MasterSchedulingAgent extends Agent{
 				return super.onEnd();
 			}
 		};
-	}
+	}*/
 	
-	public void deactivateCounter()
+	/*public void deactivateCounter()
 	{
 		count.stop();
 		this.removeBehaviour(count);
-	}
-	
-	public void createSchedule()
+	}*/
+	public void AddCar()
 	{
 		
 	}
 	
-	public void getCarMessage()
+	public void RemoveCar()
 	{
-		reply = new CyclicBehaviour(this)
-		{
-			@Override
-			public void action()
-			{
-				
-			}
-		};
 		
-		this.addBehaviour(reply);
 	}
 	
-	public void assignCarPlug(Map<AID,String> theAgents)
+	public void CreateSchedule()
+	{
+		
+	}
+	
+	public void AssignCarPlug(Map<AID,String> theAgents)
 	{
 		//Map<AID,String> theAgents = new HashMap<AID, String>();
 		
 		//return theAgents;
 	}
 	
-	@Override
-	protected void setup()
-	{
-		
-	}
 }
