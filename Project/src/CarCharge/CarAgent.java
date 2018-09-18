@@ -17,8 +17,7 @@ public class CarAgent extends Agent {
 	
 	protected void setup() {
 		//First set-up message receiving behaviour
-		CyclicBehaviour messageListeningBehaviour = new CyclicBehaviour(this)	
-				{
+		CyclicBehaviour messageListeningBehaviour = new CyclicBehaviour(this)	{
 					public void action() {
 						ACLMessage msg = receive();
 						if (msg != null) {
@@ -29,19 +28,37 @@ public class CarAgent extends Agent {
 				};
 				addBehaviour(messageListeningBehaviour);
 				
-				//Send request to MSAAgent schedule spot for now 
+				//Set up request to be sent to MSA
 				ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
 				msg.setContent("Request Schedule");
+				
+				//Send message to MSA
 				msg.addReceiver(new AID("MSAAgent", AID.ISLOCALNAME));
 			
-			//Send Message (only once)
+			//Print to message to screen and Send Message (only once) 
 			System.out.println(getLocalName() + ": Sending message " + msg.getContent() + " to ");
 			Iterator receivers = msg.getAllIntendedReceiver();
 			while(receivers.hasNext()) {
 				System.out.println(((AID)receivers.next()).getLocalName());
 			}
 			send(msg);
-				
+			
+			//set up to recieve reply message from MSA
+			addBehaviour(new CyclicBehaviour(this) {
+				public void action() {
+					ACLMessage msg = receive();
+					if (msg="Yes")
+						System.out.println("Received message - accepting spot");
+						
+						ACLMessage reply = msg.createReply();
+						reply.setPerformative(ACLMessage.INFORM);
+						reply.setContent("Place accepted");
+						reply.send();
+					
+					block(); //change later, otherwise kill agent	
+					}
+						
+			});
 	}
 	
 	//function for request of scheduling  
@@ -52,7 +69,7 @@ public class CarAgent extends Agent {
 	
 	
 	protected void chargeCar() {
-		System.out.println("Agent " + getLocalName() + " started.");
+		System.out.println("Agent " + getLocalName() + " started charging");
 		//calculate time until minCharge = minChargeTime
 		//count until minChargeTime
 		//notify MSA min charge has been reached 
