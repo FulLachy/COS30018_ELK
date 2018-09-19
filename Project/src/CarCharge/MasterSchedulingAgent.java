@@ -30,9 +30,6 @@ public class MasterSchedulingAgent extends Agent{
 		public void action()
 		{
 			System.out.println(getLocalName() + ": Waiting for Message");
-			
-			
-			
 			ACLMessage message = blockingReceive();
 			
 			if(message != null)
@@ -40,7 +37,7 @@ public class MasterSchedulingAgent extends Agent{
 				System.out.println(getLocalName() + ": Received Message");
 				ACLMessage reply = message.createReply();
 				
-				switch (reply.getPerformative())
+				switch (message.getPerformative())
 				{
 					case ACLMessage.REQUEST:
 						/*try
@@ -53,6 +50,7 @@ public class MasterSchedulingAgent extends Agent{
 						
 						//Using Dummy as the Schedule is fine at the current time
 						boolean dummy = true;
+						reply.addReceiver(message.getSender());
 						
 						//if schedule is fine then proceed 
 						if (dummy)
