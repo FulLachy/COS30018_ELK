@@ -1,3 +1,5 @@
+package CarCharge;
+
 public interface MainFrameInterface {
 
 	public void EnableSimulationButton();
