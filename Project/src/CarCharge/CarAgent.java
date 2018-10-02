@@ -17,48 +17,64 @@ public class CarAgent extends Agent {
 	
 	protected void setup() {
 		//First set-up message receiving behaviour
-		CyclicBehaviour messageListeningBehaviour = new CyclicBehaviour(this)	{
-					public void action() {
-						ACLMessage msg = receive();
+		/*CyclicBehaviour messageListeningBehaviour = new CyclicBehaviour(this)	{
+				public void action() {
+					ACLMessage msg = receive();
 						if (msg != null) {
 							System.out.println(getLocalName() + ": Received response" + msg.getContent() + " from " + msg.getSender().getLocalName());
 						}
 						block();
 					}
-				};
-				addBehaviour(messageListeningBehaviour);
+				};*/
+				//addBehaviour(messageListeningBehaviour);
 				
 				//Set up request to be sent to MSA
-				ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-				msg.setContent("Request Schedule");
+		ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+		msg.setContent("Request Schedule");
 				
-				//Send message to MSA
-				msg.addReceiver(new AID("MSAAgent", AID.ISLOCALNAME));
+		//Send message to MSA
+		msg.addReceiver(new AID("MasterSchedulingAgent", AID.ISLOCALNAME));
 			
-			//Print to message to screen and Send Message (only once) 
-			System.out.println(getLocalName() + ": Sending message " + msg.getContent() + " to ");
-			Iterator receivers = msg.getAllIntendedReceiver();
-			while(receivers.hasNext()) {
-				System.out.println(((AID)receivers.next()).getLocalName());
-			}
-			send(msg);
+		//Print to message to screen and Send Message (only once) 
+		//System.out.println(getLocalName() + ": Sending message " + msg.getContent() + " to Master");
+		Iterator receivers = msg.getAllIntendedReceiver();
+		while(receivers.hasNext()) {
+			System.out.println(getLocalName() + ": Sending message " + msg.getContent() + " to " + ((AID)receivers.next()).getLocalName());
+		}
+		send(msg);
 			
-			//set up to recieve reply message from MSA
-			addBehaviour(new CyclicBehaviour(this) {
-				public void action() {
-					ACLMessage msg = receive();
-					if (msg="Yes")
-						System.out.println("Received message - accepting spot");
-						
-						ACLMessage reply = msg.createReply();
-						reply.setPerformative(ACLMessage.INFORM);
-						reply.setContent("Place accepted");
-						reply.send();
+		//set up to recieve reply message from MSA
+		this.addBehaviour(new WaitForReply());
+	}
+	
+	private class WaitForReply extends CyclicBehaviour
+	{
+		private WaitForReply()
+		{
+			System.out.println(getLocalName() + ": Waiting for Reply");
+		}
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			ACLMessage msg = receive();
+			if (msg!= null)
+			{
+				if (msg.getPerformative() == ACLMessage.AGREE)
+				{
+					System.out.println(getLocalName() + ": Received message - accepting spot");
 					
-					block(); //change later, otherwise kill agent	
-					}
-						
-			});
+					ACLMessage reply = msg.createReply();
+					reply.setPerformative(ACLMessage.INFORM);
+					reply.setContent(getLocalName() + ": Place accepted");
+					reply.addReceiver(msg.getSender());
+					send(reply);
+					block();
+				}
+				//block(); //change later, otherwise kill agent	
+			}			
+		};
+		
 	}
 	
 	//function for request of scheduling  

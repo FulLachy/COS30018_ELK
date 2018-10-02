@@ -26,6 +26,11 @@ public class MasterSchedulingAgent extends Agent{
 	
 	private class GetCarMessage extends CyclicBehaviour
 	{
+		private GetCarMessage()
+		{
+			System.out.println(getLocalName() + ": Cyclic Behaviour Started");
+		}
+		
 		@Override
 		public void action()
 		{
@@ -50,6 +55,7 @@ public class MasterSchedulingAgent extends Agent{
 						
 						//Using Dummy as the Schedule is fine at the current time
 						boolean dummy = true;
+						
 						reply.addReceiver(message.getSender());
 						
 						//if schedule is fine then proceed 
@@ -57,7 +63,6 @@ public class MasterSchedulingAgent extends Agent{
 						{
 							reply.setPerformative(ACLMessage.AGREE);
 							reply.setContent("Scheduled");
-						
 						}
 						
 						//If the schedule is full or can't be moved, refuse
@@ -68,16 +73,19 @@ public class MasterSchedulingAgent extends Agent{
 						}
 						
 						send(reply);
-						System.out.println(getLocalName() + ": Sending Response");
+						System.out.println(getLocalName() + ": Sending Response to " + message.getSender().getLocalName());
 						break;
 					
 					case ACLMessage.CONFIRM:
-					
+						System.out.println("Confirm");
 						break;
 					
 					case ACLMessage.DISCONFIRM:
-						
+						System.out.println("Disconfirm");
 						break;
+						
+					case ACLMessage.INFORM:
+						System.out.println("Master knows that " + message.getSender().getLocalName() + " is in their spot");
 				}
 			
 			}
