@@ -17,11 +17,12 @@ public class CarAgent extends Agent
 	double currentCharge = 0; //percentage
 	double minCharge = 0.5;
 	double maxCharge = 1.0;
-	double chargeRate = 0.125;
+	double chargeRate = 0.125; //later we would need to import in value depending on point car is connected
 
-	public CarAgent(double curCharge, double chargeRate) 
+	public CarAgent(double curCharge) 
 	{
 		currentCharge = curCharge;
+		
 	}
 
 	protected void setup() {
