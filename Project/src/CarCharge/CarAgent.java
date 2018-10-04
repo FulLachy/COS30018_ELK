@@ -96,61 +96,57 @@ public class CarAgent extends Agent
 		TickerBehaviour t;
 		WakerBehaviour w;
 		
-		private void setupTicker()
-		{
-			System.out.println("Agent " + getLocalName() + " started charging");
-			
-			//Behaviour that is called every 0.1s = "every minute", every tick charge increases
-			t = new TickerBehaviour(this, 100) {
-				protected void onTick() {
-					//every tick increase charge by charge rate
-					currentCharge = currentCharge + chargeRate;
-					//System.out.println("Agent " + myAgent.getLocalName() + ": current charge =" + getTickCount());
-				}
-			};
-			
-			//Behaviour that is called after an elasped timeout of 3 seconds = "every half an hour", check charge, act accordingly
-			w = new WakerBehaviour(this, 3000)
-			{
-				protected void handleElapsedTimeout() 
-				{
-					//system print out of what the cars current charge is
-					System.out.println(myAgent.getLocalName() + " current charge is " + currentCharge + " %");
-
-					
-					//if min charge is hit inform MSA
-					if (minCharge > currentCharge) 
-					{
-						ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-						msg.setContent("Minimum charge reached");
-						msg.addReceiver(new AID("MSAAgent", AID.ISLOCALNAME));
-						send(msg);
-					}
-					
-					//if max charge hit, send message to MSA, stop ticker, kill agent
-					if (maxCharge >= currentCharge) 
-					{
-						ACLMessage maxMsg = new ACLMessage(ACLMessage.INFORM);
-						maxMsg.setContent("Maximum charge reached, agent leaving");
-						
-						maxMsg.addReceiver(new AID("MSAAgent", AID.ISLOCALNAME));
-						send(maxMsg);
-						t.stop(); //stops the ticker after wake up time without deleting the agent
-						myAgent.doDelete(); //This will delete the agent after the ticker has finished, if not here ticker will continue after waker time
-						//otherwise do nothing, continue ticker
-					}
-				}
-			};
-			
-			//Add the TickerBehaviour
-			addBehaviour(t);
-			
-			//Add the WakerBehaviour
-			addBehaviour(w);
-		}
+		System.out.println("Agent " + getLocalName() + " started charging");
 		
+		//Behaviour that is called every 0.1s = "every minute", every tick charge increases
+		t = new TickerBehaviour(this, 100) {
+			protected void onTick() {
+				//every tick increase charge by charge rate
+				currentCharge = currentCharge + chargeRate;
+				//System.out.println("Agent " + myAgent.getLocalName() + ": current charge =" + getTickCount());
+			}
+		};
+			
+		//Behaviour that is called after an elasped timeout of 3 seconds = "every half an hour", check charge, act accordingly
+		w = new WakerBehaviour(this, 3000)
+		{
+			protected void handleElapsedTimeout() 
+			{
+				//system print out of what the cars current charge is
+				System.out.println(myAgent.getLocalName() + " current charge is " + currentCharge + " %");
+					
+				//if min charge is hit inform MSA
+				if (minCharge > currentCharge) 
+				{
+					ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+					msg.setContent("Minimum charge reached");
+					msg.addReceiver(new AID("MSAAgent", AID.ISLOCALNAME));
+					send(msg);
+				}
+				
+				//if max charge hit, send message to MSA, stop ticker, kill agent
+				if (maxCharge >= currentCharge) 
+				{
+					ACLMessage maxMsg = new ACLMessage(ACLMessage.INFORM);
+					maxMsg.setContent("Maximum charge reached, agent leaving");
+						
+					maxMsg.addReceiver(new AID("MSAAgent", AID.ISLOCALNAME));
+					send(maxMsg);
+					t.stop(); //stops the ticker after wake up time without deleting the agent
+					myAgent.doDelete(); //This will delete the agent after the ticker has finished, if not here ticker will continue after waker time
+					//otherwise do nothing, continue ticker
+				}
+			}
+		};
+			
+		//Add the TickerBehaviour
+		addBehaviour(t);
+			
+		//Add the WakerBehaviour
+		addBehaviour(w);
 	}
-
+		
 }
+
 //cyclic behaviour - getting replies from the MSA and wait for replies and we do a particular thing depending on the reply
 //ticker behaviour - timing and keep track of charge 
