@@ -24,57 +24,71 @@ public class CarAgent extends Agent
 		currentCharge = curCharge;
 		
 	}
-	
-	protected void setup() 
-	{
-		//Set up request to be sent to MSA
+
+	protected void setup() {
 		ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
 		msg.setContent("Request Schedule");
-		
+				
 		//Send message to MSA
-		msg.addReceiver(new AID("MSAAgent", AID.ISLOCALNAME));
-		
+		msg.addReceiver(new AID("MasterSchedulingAgent", AID.ISLOCALNAME));
+			
 		//Print to message to screen and Send Message (only once) 
-		System.out.println(getLocalName() + ": Sending message " + msg.getContent() + " to MSA");
+		//System.out.println(getLocalName() + ": Sending message " + msg.getContent() + " to Master");
 		Iterator receivers = msg.getAllIntendedReceiver();
 		while(receivers.hasNext()) {
-			System.out.println(((AID)receivers.next()).getLocalName());
+			System.out.println(getLocalName() + ": Sending message " + msg.getContent() + " to " + ((AID)receivers.next()).getLocalName());
 		}
 		send(msg);
 			
-		//set up to receive reply message from MSA
-		addBehaviour(new CyclicBehaviour(this) 
-		{
-			public void action() {
-				ACLMessage msg = receive();
-				if (msg!=null) {
-					System.out.println("Received message - accepting spot");
-					switch (msg.getPerformative()) {
-						case ACLMessage.AGREE:
-							ACLMessage reply = msg.createReply();
-							reply.setPerformative(ACLMessage.CONFIRM);
-							reply.setContent("Place accepted");
-							send(reply);
-							
-							chargeCar();
-							
-						case ACLMessage.REFUSE:
-							System.out.println("Received message - no spot, agent dying now");
-							myAgent.doDelete(); //kill agent??
-						}	
-
-					block(); 	
-					}
-				}
-						
-			});
+		//set up to recieve reply message from MSA
+		this.addBehaviour(new WaitForReply());
 	}
+	
+	private class WaitForReply extends CyclicBehaviour
+	{
+		private WaitForReply()
+		{
+			System.out.println(getLocalName() + ": Waiting for Reply");
+		}
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			ACLMessage msg = receive();
+			if (msg!= null)
+			{
+				if (msg.getPerformative() == ACLMessage.AGREE)
+				{
+					System.out.println(getLocalName() + ": Received message - accepting spot");
+					
+					ACLMessage reply = msg.createReply();
+					reply.setPerformative(ACLMessage.INFORM);
+					reply.setContent(getLocalName() + ": Place accepted");
+					reply.addReceiver(msg.getSender());
+					send(reply);
+					chargeCar();
+					block();
+				}
+				
+				else if (msg.getPerformative() == ACLMessage.REFUSE)
+				{
+					
+					System.out.println(getLocalName() + ": Received message - no spot, agent dying now");
+					myAgent.doDelete(); //kill agent??
+				}
+				
+				//block(); //change later, otherwise kill agent	
+			}			
+		};
+	}
+	
 	
 	//function for request of scheduling  
 	/**
 	 * Car requests schedule spot now - add in time request later 
 	 * msa reponds with yes (you can charge now) or no and agent dies
 	 */
+	
 	
 	//uses ticker and waker behaviour for car charge timing, 1 tick = 10 minutes
 	protected void chargeCar()
