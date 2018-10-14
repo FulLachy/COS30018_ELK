@@ -22,7 +22,6 @@ public class CarAgent extends Agent
 	public CarAgent(double curCharge) 
 	{
 		currentCharge = curCharge;
-		
 	}
 
 	protected void setup() {

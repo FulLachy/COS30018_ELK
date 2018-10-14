@@ -14,7 +14,7 @@ public class Schedule {
 		
 		for (int i = 0; i<totalStations; i++)
 		{
-			chargeStations.add(new ChargeStation(i+1));
+			chargeStations.add(new ChargeStation(i+1, StationType.Fast));
 		}
 	}
 	
@@ -35,7 +35,7 @@ public class Schedule {
 		for(ChargeStation charge : chargeStations)
 		{
 			ScheduledCar removeCar = null;
-			/*for (ScheduledCar car : charge.allotedCars)
+			for (ScheduledCar car : charge.allotedCars)
 			{
 				if (car.id == carID)
 				{
@@ -45,9 +45,7 @@ public class Schedule {
 			if (removeCar != null)
 			{
 				charge.allotedCars.remove(removeCar);
-			}*/
+			}
 		}
 	}
-	
-	
 }

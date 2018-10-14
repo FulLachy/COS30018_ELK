@@ -9,15 +9,21 @@ import jade.lang.acl.UnreadableException;
 
 import java.util.*;
 
+import CarInformation.CarInformation;
+
 public class MasterSchedulingAgent extends Agent{
 
 	//private CyclicBehaviour reply;
 	private TickerBehaviour count;
 	
+	private LinkedList<ACLMessage> messageList = new LinkedList<ACLMessage>();
+	private LinkedList<CarData> carList = new LinkedList<CarData>();
+	//private algorithm
+	
 	@Override
 	protected void setup()
 	{
-		//Print that the agent has been created
+		System.out.println(getLocalName() + ": Created");
 		this.addBehaviour(new GetCarMessage());
 		
 		//Algorithm 
@@ -39,7 +45,16 @@ public class MasterSchedulingAgent extends Agent{
 			
 			if(message != null)
 			{
+				messageList.add(message);	
+			}
+			
+			if (messageList.size() > 0)
+			{
+				ACLMessage firstMessage = messageList.get(0);
+				messageList.remove(firstMessage);
+				
 				System.out.println(getLocalName() + ": Received Message");
+				
 				ACLMessage reply = message.createReply();
 				
 				switch (message.getPerformative())
@@ -118,26 +133,36 @@ public class MasterSchedulingAgent extends Agent{
 		count.stop();
 		this.removeBehaviour(count);
 	}*/
-	public void AddCar()
+	public boolean AddCar(CarInformation preferences)
 	{
+		CarData cd = new CarData();
 		
+		cd.carId = preferences.carId;
+		cd.type = preferences.type;
+		cd.reqFinishTime = preferences.reqFinishTime;
+		cd.reqMinCharge = preferences.reqMinCharge;
+		cd.reqStartTime = preferences.reqStartTime;
+				
+		carList.add(cd);
+		
+		return true;
 	}
 	
-	public void RemoveCar()
+	public boolean DoesCarExist(int carID)
 	{
-		
+		for (int i = 0; i< carList.size(); i++)
+		{
+			if (carList.get(i).carId == carID)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 	
-	public void CreateSchedule()
+	public boolean RemoveCar(int id)
 	{
-		
-	}
-	
-	public void AssignCarPlug(Map<AID,String> theAgents)
-	{
-		//Map<AID,String> theAgents = new HashMap<AID, String>();
-		
-		//return theAgents;
+		return true;
 	}
 	
 }
