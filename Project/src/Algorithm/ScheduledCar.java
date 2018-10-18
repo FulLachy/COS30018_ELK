@@ -4,7 +4,7 @@ import CarInformation.carType;
 
 public class ScheduledCar 
 {
-	public int id;
+	public String id;
 	public carType type;
 	public StationType preferredStationSlot;
 	public float duration = 0;
@@ -14,7 +14,7 @@ public class ScheduledCar
 	
 	public double timeOnCharge;
 	
-	public ScheduledCar()
+	public void FindPreferenceSlot()
 	{
 		if(type == carType.Small)
 		{
@@ -32,10 +32,14 @@ public class ScheduledCar
 	
 	public double CalculateTime(StationType sType, double tempStartTime)
 	{
+		
+		
 		switch(type)
 		{
 			case Small:
 				//Need to fill information out
+				
+				
 			case Medium:
 				
 			case Large:

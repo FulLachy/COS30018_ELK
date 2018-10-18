@@ -5,13 +5,13 @@ import CarInformation.carType;
 
 public class CarData {
 	public carType type;  //enum stuff
-	public int carId;
+	public String carId;
 	public StationType preferredStationSlot;
 	public double reqStartTime = 0; //preferred start time to start charging from car 
 	public double reqFinishTime = 0; //time car needs to be finished by 
 	public double reqMinCharge = 0; //minimum charge for car to have before it can leave
 
-	public CarData()
+	public void FindPreferenceSlot()
 	{
 		if(type == carType.Small)
 		{

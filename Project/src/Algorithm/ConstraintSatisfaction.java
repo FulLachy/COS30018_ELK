@@ -163,10 +163,9 @@ public class ConstraintSatisfaction {
 						}
 					}
 				}
-			}
-			
-			
+			}	
 		}
+		
 		boolean clash = false;
 		
 		for(int o =0; o < unusedCars.size(); o++)

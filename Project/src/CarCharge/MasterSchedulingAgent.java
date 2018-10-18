@@ -56,17 +56,28 @@ public class MasterSchedulingAgent extends Agent{
 				System.out.println(getLocalName() + ": Received Message");
 				
 				ACLMessage reply = message.createReply();
+				AID sender = (AID) reply.getAllReceiver().next();
+				CarInformation preferenceMessage = null;
+				String car = message.getSender().getLocalName();
 				
 				switch (message.getPerformative())
 				{
 					case ACLMessage.REQUEST:
-						/*try
+						String carID = null;
+						try
 						{
-							//obtain preferences here
+							preferenceMessage = (CarInformation) message.getContentObject();
+							carID = preferenceMessage.carId;
 						} catch(UnreadableException ue)
 						{
 							ue.printStackTrace();
-						}*/	
+						}
+						
+						if(carID != null && !DoesCarExist(carID))
+						{
+							reply.setPerformative(ACLMessage.AGREE);
+							reply.setContent("Scheduled");
+						}
 						
 						//Using Dummy as the Schedule is fine at the current time
 						boolean dummy = true;
@@ -76,8 +87,8 @@ public class MasterSchedulingAgent extends Agent{
 						//if schedule is fine then proceed 
 						if (dummy)
 						{
-							reply.setPerformative(ACLMessage.AGREE);
-							reply.setContent("Scheduled");
+							
+							
 						}
 						
 						//If the schedule is full or can't be moved, refuse
@@ -142,13 +153,14 @@ public class MasterSchedulingAgent extends Agent{
 		cd.reqFinishTime = preferences.reqFinishTime;
 		cd.reqMinCharge = preferences.reqMinCharge;
 		cd.reqStartTime = preferences.reqStartTime;
-				
+		cd.FindPreferenceSlot();		
+		
 		carList.add(cd);
 		
 		return true;
 	}
 	
-	public boolean DoesCarExist(int carID)
+	public boolean DoesCarExist(String carID)
 	{
 		for (int i = 0; i< carList.size(); i++)
 		{

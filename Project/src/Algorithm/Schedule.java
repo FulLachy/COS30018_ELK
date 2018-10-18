@@ -1,6 +1,8 @@
 package Algorithm;
 
 import java.util.LinkedList;
+import net.sourceforge.jswarm_pso.Particle;
+import net.sourceforge.jswarm_pso.FitnessFunction;
 
 public class Schedule {
 	
@@ -30,7 +32,7 @@ public class Schedule {
 		return clone;
 	}
 	
-	public void RemoveCar(int carID)
+	public void RemoveCar(String carID)
 	{
 		for(ChargeStation charge : chargeStations)
 		{
