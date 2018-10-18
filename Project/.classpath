@@ -4,5 +4,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/jade.jar"/>
 	<classpathentry kind="lib" path="lib/jadeExamples.jar"/>
+	<classpathentry kind="lib" path="lib/jswarm-pso_2_08.jar"/>
+	<classpathentry kind="lib" path="lib/choco-solver-4.0.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -1,5 +1,5 @@
 package CarInformation;
 
 public enum carType {
-	SMALL, MEDIUM, LARGE;
+	Small,Medium,Large;
 }

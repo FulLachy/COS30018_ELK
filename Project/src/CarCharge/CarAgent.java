@@ -1,7 +1,11 @@
 package CarCharge;
 
 import java.util.Iterator;
+import java.util.UUID;
+//import java.lang.String;
 
+import CarInformation.CarInformation;
+import CarInformation.carType;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.TickerBehaviour;
@@ -15,17 +19,40 @@ import jade.core.AID;
 public class CarAgent extends Agent 
 {
 	double currentCharge = 0; //percentage
+	carType cType = carType.Large;
 	double minCharge = 0.5;
-	double maxCharge = 1.0;
-	double chargeRate = 0.125; //later we would need to import in value depending on point car is connected
-
-	public CarAgent(double curCharge) 
+	double maxCharge = 3.0;
+	double chargeRate = 0.25; //later we would need to import in value depending on point car is connected
+	double startTime = 0.0;
+	double endTime = 12.0;
+	String carID = UUID.randomUUID().toString();
+	
+	
+	public CarAgent(carType type, double minimumCharge, double curCharge, double start) 
 	{
 		currentCharge = curCharge;
-		
+		cType = type;
+		minCharge = minimumCharge;
+		startTime = start;
+		switch(cType)
+		{
+			case Large:
+				maxCharge = 3.0;
+				chargeRate = 0.25;
+				break;
+			case Medium:
+				maxCharge = 2.0;
+				chargeRate = 0.125;
+				break;
+			case Small:
+				maxCharge = 1.0;
+				chargeRate = 0.1;
+				break;
+		}
 	}
 
 	protected void setup() {
+		CarInformation prefMessage = new CarInformation(cType, carID, chargeRate, chargeRate, chargeRate);
 		ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
 		msg.setContent("Request Schedule");
 				
