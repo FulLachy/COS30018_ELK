@@ -31,19 +31,18 @@ import javax.swing.JTabbedPane;
 import javax.swing.JList;
 
 /**
- * Mainframe is an extension of a JFrame. Inside this frame it has buttons with
- * the functionality to start the Jade environment, stop and start the
- * simulations and add cards into the system. it also displays the highest
- * Fitness schedule.
+ * This JFrame is used to display buttons that start and stop the simulation, 
+ * display messages between agents, select the number of cars and slots to be 
+ * used per simulation and display the current optimal schedule.
  */
 public class MainFrame extends JFrame implements MainFrameInterface {
 
-
 	private JLabel schduleLabel;
 	private JScrollPane scrollPane_1;
-	private JButton btnJadeController, btnSimulation, btnAddCar, btnClearMessages;
+	private JButton btnStartController, btnStopSimulation, btnAddCar, btnAddSlot, btnClearMessages;
 	private JTextPane textPannel;
 	private JSplitPane splitPane_2;
+	private JSplitPane splitPane_3;
 	private JList<Integer> list;
 	private JPanel contentPane;
 	private JScrollPane scrollPane;
@@ -55,36 +54,38 @@ public class MainFrame extends JFrame implements MainFrameInterface {
 	 * Create the frame.
 	 */
 	public MainFrame() {
-		setTitle("Beta master controller");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setTitle("Car Scheduling System");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //program exits when frame closes
 		setBounds(100, 100, 660, 397);
 		contentPane = new JPanel();
 		contentPane.setLocation(0, 0);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
-
+		
+		
+        //start simulation and stop simulation buttons
 		JSplitPane splitPane = new JSplitPane();
 		contentPane.add(splitPane, BorderLayout.NORTH);
-
-		btnJadeController = new JButton("Start Controller");
-		btnJadeController.setActionCommand("StartJADE");
+		//Start controller button (left)
+		btnStartController = new JButton("Start Simulation");
+		btnStartController.setActionCommand("StartSimulation");
 		//		btnJadeController.addActionListener(controller);
-
-		btnJadeController.setBackground(SystemColor.LIGHT_GRAY);
-		splitPane.setLeftComponent(btnJadeController);
-
-		btnSimulation = new JButton("Start Simulation");
-		btnSimulation.setActionCommand("StartSimulation");
-		splitPane.setRightComponent(btnSimulation);
-		btnSimulation.setEnabled(false);
-		btnSimulation.setBackground(SystemColor.LIGHT_GRAY);
+		btnStartController.setBackground(SystemColor.LIGHT_GRAY);
+		splitPane.setLeftComponent(btnStartController);
+		
+		//Stop Controller button (right)
+		btnStopSimulation = new JButton("Stop Simulation");
+		btnStopSimulation.setActionCommand("StopSimulation");
+		splitPane.setRightComponent(btnStopSimulation);
+		btnStopSimulation.setEnabled(false);
+		btnStopSimulation.setBackground(SystemColor.LIGHT_GRAY);
 		//		btnSimulation.addActionListener(controller);
+		
 
 		JSplitPane splitPane_1 = new JSplitPane();
 		splitPane_1.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		contentPane.add(splitPane_1, BorderLayout.WEST);
-
 		scrollPane_1 = new JScrollPane();
 		splitPane_1.setRightComponent(scrollPane_1);
 
@@ -97,22 +98,24 @@ public class MainFrame extends JFrame implements MainFrameInterface {
 		tabPannel = new JTabbedPane(JTabbedPane.TOP);
 		splitPane_1.setLeftComponent(tabPannel);
 
-		btnClearMessages = new JButton("space to manage messages from agent");
-		tabPannel.addTab("Manage Messages", null, btnClearMessages, null);
-		btnClearMessages.setActionCommand("ClearMessages");
+		//btnClearMessages = new JButton("space to manage messages from agent");
+		//tabPannel.addTab("Manage Messages", null, btnClearMessages, null);
+		//btnClearMessages.setActionCommand("ClearMessages");
 		//								btnClearMessages.addActionListener(controller);
-		btnClearMessages.setEnabled(false);
+		//btnClearMessages.setEnabled(false);
 
+		//Adds panel tab for car number selection, pre-decided numbers up to 100
 		splitPane_2 = new JSplitPane();
 		splitPane_2.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		tabPannel.addTab("Add Cars", null, splitPane_2, null);
+		
 
 		btnAddCar = new JButton("Add Car");
 		splitPane_2.setLeftComponent(btnAddCar);
 		btnAddCar.setEnabled(false);
 		btnAddCar.setActionCommand("AddCar");
 		//										btnAddCar.addActionListener(controller);
-
+		
 		DefaultListModel<Integer> carsNum = new DefaultListModel();
 		carsNum.addElement(1);
 		carsNum.addElement(2);
@@ -125,19 +128,42 @@ public class MainFrame extends JFrame implements MainFrameInterface {
 		list.setModel(carsNum);
 		splitPane_2.setRightComponent(list);
 
+		
+		//Adds panel tab for selection of number of slots, choose pre-decided numbers up to 30
+		splitPane_3 = new JSplitPane();
+		splitPane_3.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		tabPannel.addTab("Add Slots", null, splitPane_3, null);
+		
+
+		btnAddSlot = new JButton("Add Slots");
+		splitPane_2.setLeftComponent(btnAddSlot);
+		btnAddSlot.setEnabled(false);
+		btnAddSlot.setActionCommand("AddSlot");
+
+		DefaultListModel<Integer> slotNum = new DefaultListModel();
+		slotNum.addElement(1);
+		slotNum.addElement(5);
+		slotNum.addElement(10);
+		slotNum.addElement(20);
+		slotNum.addElement(30);
+		list = new JList<Integer>();
+		list.setModel(slotNum);
+		splitPane_3.setRightComponent(list);
+
 
 		JSplitPane splitPane_3 = new JSplitPane();
 		splitPane_3.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		contentPane.add(splitPane_3, BorderLayout.CENTER);
 
-		schduleLabel = new JLabel("space to show something like the current number of vehicle being charged. ");
+		/*schduleLabel = new JLabel("space to show something like the current number of vehicle being charged. ");
 		splitPane_3.setLeftComponent(schduleLabel);
-
+*/
 		scrollPane = new JScrollPane();
 		scrollPane.setEnabled(false);
 		splitPane_3.setBottomComponent(scrollPane);
 
 		// Make Table
+		//TODO to change to reflect the fact we can now edit the number of slot available
 		Object[][] TabeleData = getTableTimeFormat(interval);
 		table = new JTable();
 		dtm = new DefaultTableModel(TabeleData,
@@ -173,14 +199,14 @@ public class MainFrame extends JFrame implements MainFrameInterface {
 
 	@Override
 	public void EnableSimulationButton() {
-		btnJadeController.setEnabled(false);
-		btnSimulation.setEnabled(true);
+		btnStartController.setEnabled(false);
+		btnStopSimulation.setEnabled(true);
 	}
 
 	@Override
 	public void EnableDisplay() {
 		btnAddCar.setEnabled(true);
-		btnSimulation.setText("Stop Simulation");
+		btnStopSimulation.setText("Stop Simulation");
 		textPannel.setEnabled(true);
 		btnClearMessages.setEnabled(true);
 	}
