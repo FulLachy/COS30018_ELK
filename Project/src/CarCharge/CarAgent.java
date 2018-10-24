@@ -112,7 +112,7 @@ public class CarAgent extends Agent
 		//System.out.println(getLocalName() + ": Sending message " + msg.getContent() + " to Master");
 		Iterator receivers = msg.getAllIntendedReceiver();
 		while(receivers.hasNext()) {
-			System.out.println(getLocalName() + ": Sending message " + msg.getContent() + " to " + ((AID)receivers.next()).getLocalName());
+			System.out.println(getLocalName() + ": Sending message to " + ((AID)receivers.next()).getLocalName());
 		}
 		send(msg);
 			
@@ -190,14 +190,14 @@ public class CarAgent extends Agent
 			protected void handleElapsedTimeout() 
 			{
 				//system print out of what the cars current charge is
-				System.out.println(myAgent.getLocalName() + " current charge is " + currentCharge + " %");
+				System.out.println(myAgent.getLocalName() + " current charge is " + currentCharge/maxCharge + " %");
 					
 				//if min charge is hit inform MSA
 				if (minCharge > currentCharge) 
 				{
 					ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 					msg.setContent("Minimum charge reached");
-					msg.addReceiver(new AID("MSAAgent", AID.ISLOCALNAME));
+					msg.addReceiver(new AID("MasterSchedulingAgent", AID.ISLOCALNAME));
 					send(msg);
 				}
 				
@@ -207,7 +207,7 @@ public class CarAgent extends Agent
 					ACLMessage maxMsg = new ACLMessage(ACLMessage.INFORM);
 					maxMsg.setContent("Maximum charge reached, agent leaving");
 						
-					maxMsg.addReceiver(new AID("MSAAgent", AID.ISLOCALNAME));
+					maxMsg.addReceiver(new AID("MasterSchedulingAgent", AID.ISLOCALNAME));
 					send(maxMsg);
 					t.stop(); //stops the ticker after wake up time without deleting the agent
 					myAgent.doDelete(); //This will delete the agent after the ticker has finished, if not here ticker will continue after waker time

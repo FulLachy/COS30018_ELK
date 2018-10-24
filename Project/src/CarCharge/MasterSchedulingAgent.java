@@ -75,30 +75,31 @@ public class MasterSchedulingAgent extends Agent{
 						
 						if(carID != null && !DoesCarExist(carID))
 						{
-							reply.setPerformative(ACLMessage.AGREE);
-							reply.setContent("Scheduled");
-						}
-						
-						//Using Dummy as the Schedule is fine at the current time
-						boolean dummy = true;
-						
-						reply.addReceiver(message.getSender());
-						
-						//if schedule is fine then proceed 
-						if (dummy)
-						{
+							boolean isInRange;
+							isInRange = preferenceMessage.reqStartTime >=0.0;
+							isInRange = isInRange && preferenceMessage.reqFinishTime <=48.00;
 							
-							
+							if(isInRange&&AddCar(preferenceMessage))
+							{
+								System.out.println(getLocalName() +": " + message.getSender());
+								reply.setPerformative(ACLMessage.AGREE);
+								reply.setContent("Scheduled");
+							}
+							else
+							{
+								reply.setPerformative(ACLMessage.REFUSE);
+								reply.setContent("Cannot be Scheduled");
+							}
 						}
-						
-						//If the schedule is full or can't be moved, refuse
 						else
 						{
+							//Must try and update car preference
 							reply.setPerformative(ACLMessage.REFUSE);
 							reply.setContent("Cannot be Scheduled");
 						}
-						
+						reply.addReceiver(message.getSender());
 						send(reply);
+						
 						System.out.println(getLocalName() + ": Sending Response to " + message.getSender().getLocalName());
 						break;
 					
