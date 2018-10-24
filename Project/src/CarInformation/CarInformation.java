@@ -1,12 +1,14 @@
 package CarInformation;
 
+import java.io.Serializable;
+
 import CarCharge.CarAgent;
 //import car stuff some how
 /*
  * This class contains the details of the car that are needed by the MSA for scheduling
  */
 
-public class CarInformation {
+public class CarInformation implements Serializable{
 	public carType type;  //enum stuff
 	public String carId;
 	public double reqStartTime = 0; //preferred start time to start charging from car 

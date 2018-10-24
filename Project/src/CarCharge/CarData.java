@@ -1,9 +1,11 @@
 package CarCharge;
 
+import java.io.Serializable;
+
 import Algorithm.StationType;
 import CarInformation.carType;
 
-public class CarData {
+public class CarData{
 	public carType type;  //enum stuff
 	public String carId;
 	public StationType preferredStationSlot;

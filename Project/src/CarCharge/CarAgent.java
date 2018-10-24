@@ -1,5 +1,7 @@
 package CarCharge;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.UUID;
 //import java.lang.String;
@@ -27,8 +29,9 @@ public class CarAgent extends Agent
 	double endTime = 12.0;
 	String carID = UUID.randomUUID().toString();
 	
+	private CarInformation prefMessage;
 	
-	public CarAgent(carType type, double minimumCharge, double curCharge, double start) 
+	/*public CarAgent(carType type, double minimumCharge, double curCharge, double start) 
 	{
 		currentCharge = curCharge;
 		cType = type;
@@ -49,13 +52,59 @@ public class CarAgent extends Agent
 				chargeRate = 0.1;
 				break;
 		}
-	}
+	}*/
 
+	private void GetArguments()
+	{
+		Object[] args = getArguments();
+		
+		if (args!= null)
+		{
+			switch(args[0].toString())
+			{
+				case "Large":
+					maxCharge = 3.0;
+					chargeRate = 0.25;
+					cType = carType.Large;
+					break;
+				case "Medium":
+					maxCharge = 2.0;
+					chargeRate = 0.125;
+					cType = carType.Medium;
+					break;
+				case "Small":
+					maxCharge = 1.0;
+					chargeRate = 0.1;
+					cType = carType.Small;
+					break;
+			}
+			
+			minCharge = Double.parseDouble(args[1].toString());
+			currentCharge = Double.parseDouble(args[2].toString());
+			startTime = Double.parseDouble(args[3].toString());
+			endTime = Double.parseDouble(args[4].toString());
+			
+		}
+		
+		
+	}
+	
 	protected void setup() {
-		CarInformation prefMessage = new CarInformation(cType, carID, chargeRate, chargeRate, chargeRate);
+		
+		GetArguments();
+		
+		prefMessage = new CarInformation(cType, carID, chargeRate, chargeRate, chargeRate);
 		ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+		
 		msg.setContent("Request Schedule");
-				
+		try {
+			msg.setContentObject(prefMessage);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("Failed to Attach the Preference Data");
+			e.printStackTrace();
+		}
+		
 		//Send message to MSA
 		msg.addReceiver(new AID("MasterSchedulingAgent", AID.ISLOCALNAME));
 			
@@ -131,7 +180,7 @@ public class CarAgent extends Agent
 			protected void onTick() {
 				//every tick increase charge by charge rate
 				currentCharge = currentCharge + chargeRate;
-				//System.out.println("Agent " + myAgent.getLocalName() + ": current charge =" + getTickCount());
+				System.out.println("Agent " + myAgent.getLocalName() + ": current charge =" + getTickCount());
 			}
 		};
 			
