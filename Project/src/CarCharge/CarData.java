@@ -28,4 +28,6 @@ public class CarData{
 			preferredStationSlot = StationType.Fast;
 		}
 	}
+	
+	
 }

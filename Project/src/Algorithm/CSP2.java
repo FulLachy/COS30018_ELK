@@ -3,6 +3,7 @@ package Algorithm;
 import java.util.LinkedList;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.RealVar;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.constraints.reification.*;
 import CarCharge.CarData;
@@ -91,19 +92,6 @@ public class CSP2 {
 		Schedule s = new Schedule(numStations);
 		OrderCarsByStartTime();
 		
-		IntVar[] startTime = new IntVar[numStations];
-		IntVar[] endTime = new IntVar[numStations];
-		IntVar[] minCharge = new IntVar[numStations];
-		
-		for (int i=0; i<numStations; i++)
-		{
-			startTime[i] = vars[i].sub(i).intVar();
-		}
-				
-		model.post(
-				
-		);
-		
 		for(int i=0; i< CarList.size(); i++)
 		{
 			ScheduledCar sc = GetScheduledCar(i);
@@ -113,13 +101,18 @@ public class CSP2 {
 				boolean clash = false;
 				boolean correctStationType = true;
 				
-				
-				
 				for(int a=0; a<numStations; a++)
 				{
 					ChargeStation cs = s.chargeStations.get(a);
+					
+					RealVar startTime = model.realVar(CarList.get(i).reqStartTime);
+					RealVar endTime = model.realVar(CarList.get(i).reqFinishTime);
+					RealVar minCharge = model.realVar(CarList.get(i).reqMinCharge);
+									
 					if (cs.allotedCars.size()!= 0)
 					{
+						
+						
 						if(cs.stationType != sc.preferredStationSlot)
 						{
 							correctStationType = false;

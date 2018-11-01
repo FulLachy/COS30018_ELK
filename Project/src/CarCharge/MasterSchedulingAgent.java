@@ -9,6 +9,8 @@ import jade.lang.acl.UnreadableException;
 
 import java.util.*;
 
+import Algorithm.ConstraintSatisfaction;
+import Algorithm.Schedule;
 import CarInformation.CarInformation;
 
 public class MasterSchedulingAgent extends Agent{
@@ -18,16 +20,32 @@ public class MasterSchedulingAgent extends Agent{
 	
 	private LinkedList<ACLMessage> messageList = new LinkedList<ACLMessage>();
 	private LinkedList<CarData> carList = new LinkedList<CarData>();
-	//private algorithm
+	
+	private ConstraintSatisfaction CS;
+	
+	private int NumberOfStations;
+	private int numberOfSlow;
+	private int numberOfMedium;
+	private int numberOfFast;
+	
 	
 	@Override
 	protected void setup()
 	{
+		GetArguments();
+		CS = new ConstraintSatisfaction(carList,NumberOfStations,numberOfSlow, numberOfMedium, numberOfFast);
 		System.out.println(getLocalName() + ": Created");
 		this.addBehaviour(new GetCarMessage());
+	}
+	
+	private void GetArguments()
+	{
+		Object[] args = getArguments();
 		
-		//Algorithm 
-		//
+		numberOfSlow = Integer.parseInt(args[0].toString());
+		numberOfMedium = Integer.parseInt(args[1].toString());
+		numberOfFast= Integer.parseInt(args[2].toString());	
+		NumberOfStations = numberOfSlow + numberOfMedium + numberOfFast;
 	}
 	
 	private class GetCarMessage extends CyclicBehaviour
@@ -53,7 +71,7 @@ public class MasterSchedulingAgent extends Agent{
 				ACLMessage firstMessage = messageList.get(0);
 				messageList.remove(firstMessage);
 				
-				System.out.println(getLocalName() + ": Received Message");
+				System.out.println(getLocalName() + ": Received Message from" + firstMessage.getSender().getLocalName());
 				
 				ACLMessage reply = message.createReply();
 				AID sender = (AID) reply.getAllReceiver().next();
@@ -68,7 +86,8 @@ public class MasterSchedulingAgent extends Agent{
 						{
 							preferenceMessage = (CarInformation) message.getContentObject();
 							carID = preferenceMessage.carId;
-						} catch(UnreadableException ue)
+						} 
+						catch(UnreadableException ue)
 						{
 							ue.printStackTrace();
 						}
@@ -157,8 +176,17 @@ public class MasterSchedulingAgent extends Agent{
 		cd.FindPreferenceSlot();		
 		
 		carList.add(cd);
+		Schedule temp = CS.CreateSchedule();
 		
-		return true;
+		while(!CS.ready) {}
+		
+		if (DoesCarExist(cd.carId))
+		{
+			CS.schedule = temp;
+			return true;
+		}
+		
+		return false;
 	}
 	
 	public boolean DoesCarExist(String carID)

@@ -6,7 +6,7 @@ import CarCharge.CarData;
 
 public class ChargeStation {
 
-	private int chargerNumber = 0;
+	public int chargerNumber = 0;
 	public StationType stationType;
 	
 	public LinkedList<ScheduledCar> allotedCars = new LinkedList<ScheduledCar>();	
@@ -43,6 +43,37 @@ public class ChargeStation {
 				count--;
 			}
 		}
+	}
+	
+	public double GetMaxStartTime(CarData cd)
+	{
+		double hourlyCharge = 0;
+		switch(stationType)
+		{
+			case Slow:
+				hourlyCharge = 0.2;
+			case Medium:
+				hourlyCharge = 0.25;
+			case Fast:
+				hourlyCharge = 0.5;
+		}
+		
+		switch(cd.type)
+		{
+			case Small:
+				if (hourlyCharge >= 0.2)
+					hourlyCharge = 0.2;
+			case Medium:
+				if (hourlyCharge >= 0.25)
+					hourlyCharge = 0.25;
+			case Large:
+				if (hourlyCharge >= 0.5)
+					hourlyCharge = 0.5;
+		}
+		
+		hourlyCharge = cd.reqMinCharge / hourlyCharge;
+		return cd.reqFinishTime - hourlyCharge;
+		
 	}
 	
 	public ChargeStation Clone()

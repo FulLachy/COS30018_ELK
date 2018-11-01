@@ -180,7 +180,7 @@ public class CarAgent extends Agent
 			protected void onTick() {
 				//every tick increase charge by charge rate
 				currentCharge = currentCharge + chargeRate;
-				System.out.println("Agent " + myAgent.getLocalName() + ": current charge =" + getTickCount());
+				//System.out.println("Agent " + myAgent.getLocalName() + ": current charge =" + getTickCount());
 			}
 		};
 			

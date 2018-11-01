@@ -7,32 +7,39 @@ import CarCharge.CarData;
 public class ConstraintSatisfaction {
 
 	private int numStations;
-	private boolean firstCarSlotted;
+	private boolean firstCarSlotted = true;
 	
-	private LinkedList<Schedule> population;
+	//private LinkedList<Schedule> schedule;
 	
 	private LinkedList<CarData> CarList;
-	//private Schedule schedule = null;
+	public Schedule schedule = null;
 
-	private LinkedList<CarData> unusedCars;
+	private LinkedList<ScheduledCar> unusedCars = new LinkedList<ScheduledCar>();
+	public boolean ready = false;
+	
+	int slow;
+	int medium; 
+	int fast;
+	//int numberOfMedium; 
+	//int numberOfFast;
 	
 	
-	public ConstraintSatisfaction(LinkedList<CarData> list, int stations)
+	public ConstraintSatisfaction(LinkedList<CarData> list, int stations,int numberOfSlow, int numberOfMedium, int numberOfFast)
 	{
 		CarList = list;
 		numStations = stations;
+		CreateSchedule(numberOfSlow, numberOfMedium, numberOfFast);
 	}
 	
-	private void PopulateSchedule(LinkedList<Schedule> schedule)
+	private void CreateSchedule(int numberOfSlow, int numberOfMedium, int numberOfFast)
 	{
 		if(schedule == null)
 		{
-			population = new LinkedList<Schedule>();
-			
-			//for(int i = 0; i<size; i++)
-			//{
-				//population.add(CreateSchedule());
-			//}
+			//schedule = new LinkedList<Schedule>();
+			schedule = new Schedule(numberOfSlow, numberOfMedium, numberOfFast);
+			slow = numberOfSlow;
+			medium = numberOfMedium;
+			fast = numberOfFast;
 		}
 	}
 	
@@ -52,54 +59,100 @@ public class ConstraintSatisfaction {
 	
 	public void OrderCarsByStartTime()
 	{
-		for (int i = 0; i < CarList.size(); i++)
+		if(CarList.size() > 1)
 		{
-			int count = CarList.size() - 1;
-			while(count > 0)
+			for (int i = 0; i < CarList.size() - 1; i++)
 			{
-				for (int a = 0; a < count; a++)
+				int count = CarList.size() - 1;
+				while(count > 0)
 				{
-					CarData test1 = CarList.get(a);
-					CarData test2 = CarList.get(a+1); 
-					
-					if(test1.reqStartTime > test2.reqStartTime)
+					for (int a = 0; a < count; a++)
 					{
-						CarData swap = test1;
-						test1 = test2;
-						test2 = swap;
-					}
+						CarData test1 = CarList.get(a);
+						CarData test2 = CarList.get(a+1); 
 					
-					CarList.set(i,test1);
-					CarList.set(i+1, test2);
-				}
+						if(test1.reqStartTime > test2.reqStartTime)
+						{
+							CarData swap = test1;
+							test1 = test2;
+							test2 = swap;
+						}
+					
+						CarList.set(i,test1);
+						CarList.set(i+1, test2);
+					}
 				
-				count--;
+					count--;
+				}
 			}
 		}
 	}
 	
-	private Schedule CreateSchedule()
+	public boolean DoesCarExist(String id)
 	{
+		for (int i = 0; i < schedule.chargeStations.size(); i++)
+		{
+			for (int o = 0; i < schedule.chargeStations.get(i).allotedCars.size(); o++)
+			{
+				if(schedule.chargeStations.get(i).allotedCars.size() != 0)
+				{
+					if(schedule.chargeStations.get(i).allotedCars.get(o).id == id)
+					{
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+	public void PrintNames()
+	{
+		for (int y = 0; y < CarList.size(); y++)
+		{
+			System.out.println(CarList.get(y).carId);
+		}
+	}
+	
+	public Schedule CreateSchedule()
+	{
+		firstCarSlotted = true;
+		ready = false;
+		
+		PrintNames();
+		System.out.println(CarList.size());
+		
+		System.out.println(slow + " " + medium + " " + fast);
 		ChargeStation bestStation = null;
-		Schedule s = new Schedule(numStations);
-		OrderCarsByStartTime();
+		Schedule s = new Schedule(slow, medium, fast);
+		
 		
 		for(int i=0; i< CarList.size(); i++)
 		{
-			ScheduledCar sc = GetScheduledCar(i);
+			boolean clash = false;
+			ScheduledCar sc = new ScheduledCar();
+			sc = GetScheduledCar(i);
 			
 			if (firstCarSlotted == false)
 			{
-				boolean clash = false;
+				//OrderCarsByStartTime();
+				clash = false;
 				boolean correctStationType = true;
 				
 				for(int a=0; a<numStations; a++)
 				{
+					clash = false;
+					correctStationType = true;
+					
 					ChargeStation cs = s.chargeStations.get(a);
+					
 					if (cs.allotedCars.size()!= 0)
 					{
+						clash = false;
+						System.out.println(cs.allotedCars.size() + " What?");
 						if(cs.stationType != sc.preferredStationSlot)
 						{
+							System.out.println("Not Right Type");
 							correctStationType = false;
 						}
 						else
@@ -110,6 +163,7 @@ public class ConstraintSatisfaction {
 								if(CheckClash(sc, other,cs.stationType))
 								{
 									clash = true;
+									System.out.println(clash);
 									break;
 								}
 							}
@@ -122,6 +176,7 @@ public class ConstraintSatisfaction {
 								
 								if(bestStation == null)
 								{
+									System.out.println("Best Station");
 									bestStation = cs;
 								}
 								else
@@ -138,20 +193,43 @@ public class ConstraintSatisfaction {
 					}
 					else
 					{
-						correctStationType = true;
-						sc.startTime = sc.startRequested;
-						cs.allotedCars.add(sc);
+						
+						if(cs.stationType != sc.preferredStationSlot)
+						{
+							System.out.println("Not Right Type 2");
+							correctStationType = false;
+							break;
+						}
+						else
+						{
+							clash = false;
+							correctStationType = true;
+							sc.startTime = sc.startRequested;
+							
+							System.out.println("It Got Here");
+							
+							for(int u = 0; u < s.chargeStations.size(); u++)
+							{
+								if (s.chargeStations.get(u).chargerNumber == cs.chargerNumber)
+								{
+									s.chargeStations.get(u).allotedCars.add(sc);
+								}
+							}
+						}
+						
 					}
 					
-					if(!correctStationType)
-					{
-						unusedCars.add(CarList.get(i));
-					}
+				}
+				
+				if(!correctStationType)
+				{
+					unusedCars.add(sc);
 				}
 				
 				if(clash)
 				{
-					unusedCars.add(CarList.get(i));				
+					System.out.println("Hello");
+					unusedCars.add(sc);				
 				}
 				else
 				{
@@ -160,50 +238,88 @@ public class ConstraintSatisfaction {
 						if (bestStation == s.chargeStations.get(a))
 						{
 							s.chargeStations.get(a).allotedCars.add(sc);
+							break;
+						}
+					}
+				}
+			}	
+			else
+			{
+				//int tempBool = true;
+				firstCarSlotted = false;
+				for(int i1=0; i1 < s.chargeStations.size(); i1++)
+				{
+					if(s.chargeStations.get(i1).stationType == CarList.get(0).preferredStationSlot)
+					{
+						s.chargeStations.get(i1).allotedCars.add(GetScheduledCar(0));
+						System.out.println("Help");
+						break;
+					}
+				}
+				
+				//tempBool = false;
+				
+				
+				//s.chargeStations.get(0).allotedCars.add(GetScheduledCar(0));
+				
+			}
+		}
+		
+		boolean clash = false;
+		
+		
+		if (unusedCars.size() > 0)
+		{
+			System.out.println("Is it here too?");
+			for(int o =0; o < unusedCars.size(); o++)
+			{		
+				ScheduledCar sc = unusedCars.get(o);
+				for(int a=0; a<numStations; a++)
+				{
+					ChargeStation cs = s.chargeStations.get(a);
+					if (cs.allotedCars.size()!= 0)
+					{
+						for(int e = 0; e < cs.allotedCars.size();e++)
+						{
+							ScheduledCar other = cs.allotedCars.get(e);
+							if(CheckClash(sc, other,cs.stationType))
+							{
+								clash = true;
+								break;
+							}
+						}
+						
+						if (!clash)
+						{
+							sc.startTime = sc.startRequested;
+							cs.allotedCars.add(sc);
+							break;
 						}
 					}
 				}
 			}	
 		}
 		
-		boolean clash = false;
-		
-		for(int o =0; o < unusedCars.size(); o++)
+		if(clash)
 		{
-			ScheduledCar sc = GetScheduledCar(o);
-			for(int a=0; a<numStations; a++)
+			
+			
+		}
+		
+		for (int o =0; o < unusedCars.size();o++)
+		{
+			for(int e=0; e<CarList.size(); e++)
 			{
-				ChargeStation cs = s.chargeStations.get(a);
-				if (cs.allotedCars.size()!= 0)
+				if (CarList.get(e).carId == unusedCars.get(o).id)
 				{
-					for(int e = 0; e < cs.allotedCars.size();e++)
-					{
-						ScheduledCar other = cs.allotedCars.get(e);
-						if(CheckClash(sc, other,cs.stationType))
-						{
-							clash = true;
-							break;
-						}
-					}
-					
-					if (!clash)
-					{
-						sc.startTime = sc.startRequested;
-						cs.allotedCars.add(sc);
-						break;
-					}
+					CarList.remove(e);			
 				}
 			}
 		}
-	
-		if(clash)
-		{
-			//int count = 0;
-			//while (!)
-			//Try and add to another car slot
-			
-		}
+		
+		ready = true;
 		return s;
+		
 	}
 		
 	private double ReturnGap(ChargeStation cs, ScheduledCar sc)
