@@ -74,15 +74,19 @@ public class MainFrame extends JFrame implements MainFrameInterface {
     private javax.swing.JTextField txtMinCharge;
     private javax.swing.JTextField txtSTime;
     //Mem vars
+    private Process mSA;
     private int carcount = 0;
     private LinkedList<Process> caragentsPlist = new LinkedList<Process>();
     private Thread currthread;
+	private JLabel lblRegistrationNumber;
+	private JTextField txtRegistrationNumber;
     
     
 	/**
 	 * Create the frame.
 	 */
 	public MainFrame() {
+		initJade();
 		setTitle("Car Scheduling System");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //program exits when frame closes
 		setBounds(100, 100, 660, 397);
@@ -211,9 +215,22 @@ public class MainFrame extends JFrame implements MainFrameInterface {
 	            if(currthread != null) {
 	            	currthread.stop();
 	            }
+	            for(Process p :caragentsPlist) {
+	            	p.destroy();	            	
+	            }
+	            mSA.destroy();
 	        }
 	    }, "Shutdown-thread"));
 		this.setVisible(true);
+	}
+
+	private void initJade() {
+		try {
+			Process p = Runtime.getRuntime().exec("java -cp lib\\jade.jar;bin jade.Boot -gui -agents MasterSchedulingAgent:CarCharge.MasterSchedulingAgent");
+			mSA = p;					
+		} catch (IOException e1) {					
+			e1.printStackTrace();
+		}		
 	}
 
 	protected void btnAddCarAction() {
@@ -223,10 +240,12 @@ public class MainFrame extends JFrame implements MainFrameInterface {
         rbtnLarge = new javax.swing.JRadioButton();
         rbtnMedium = new javax.swing.JRadioButton();
         rbtnSmall = new javax.swing.JRadioButton();
+        lblRegistrationNumber = new javax.swing.JLabel();
         lblcurrentCharge = new javax.swing.JLabel();
         lblMinCharge = new javax.swing.JLabel();
         lblStartTime = new javax.swing.JLabel();
         lblEndTime = new javax.swing.JLabel();
+        txtRegistrationNumber = new javax.swing.JTextField();
         txtMinCharge = new javax.swing.JTextField();
         txtCurrCharge = new javax.swing.JTextField();
         txtSTime = new javax.swing.JTextField();
@@ -236,6 +255,8 @@ public class MainFrame extends JFrame implements MainFrameInterface {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         
         lblStationType.setText("Station Type: ");
+        
+        lblRegistrationNumber.setText("Registration Number: ");
 
         rbtnLarge.setText("Large");      
 
@@ -278,14 +299,16 @@ public class MainFrame extends JFrame implements MainFrameInterface {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblRegistrationNumber)
                             .addComponent(lblcurrentCharge)
                             .addComponent(lblEndTime)
                             .addComponent(lblMinCharge)
                             .addComponent(lblStartTime))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtCurrCharge, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtRegistrationNumber, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(txtCurrCharge, javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(txtEtime, javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(txtMinCharge, javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(txtSTime, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE))))
@@ -302,6 +325,10 @@ public class MainFrame extends JFrame implements MainFrameInterface {
                     .addComponent(rbtnMedium)
                     .addComponent(rbtnSmall))
                 .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(lblRegistrationNumber)
+                        .addComponent(txtRegistrationNumber, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblcurrentCharge)
                     .addComponent(txtCurrCharge, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -327,7 +354,7 @@ public class MainFrame extends JFrame implements MainFrameInterface {
         btnAddCar.addActionListener(new ActionListener() {			
 			public void actionPerformed(ActionEvent e) {					
 				carcount +=1;
-				slotNum.addElement("Car " + carcount);			
+				slotNum.addElement(txtRegistrationNumber.getText());			
 				String cmd = "cmd /c \"java -cp lib\\jade.jar;bin jade.Boot -container -host localhost -exitwhenempty true -agents carag"+carcount+":CarCharge.CarAgent(\""
 						+ rbtngrpStation.getSelection().getActionCommand() + "\"," + txtMinCharge.getText()
 						+ "," + txtCurrCharge.getText() + "," + txtSTime.getText() + "," + txtEtime.getText() + ")\"";

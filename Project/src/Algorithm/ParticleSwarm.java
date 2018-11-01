@@ -1,26 +1,57 @@
 package Algorithm;
 
+import CarCharge.CarData;
+
+import java.util.ArrayList; 
+import java.util.Iterator; 
+import java.util.List; 
+
 import net.sourceforge.jswarm_pso.Particle;
 import net.sourceforge.jswarm_pso.FitnessFunction;
 import net.sourceforge.jswarm_pso.Swarm; 
-//import net.sourceforge.jswarm_pso.example_2.SwarmShow2D; 
+import net.sourceforge.jswarm_pso.Neighborhood; 
+import net.sourceforge.jswarm_pso.Neighborhood1D;
+import net.sourceforge.jswarm_pso.example_2.SwarmShow2D; 
 
 import Algorithm.MyFitnessFunction;
 import Algorithm.MyParticle; 
 
 public class ParticleSwarm  {
-	// Create a swarm (using 'MyParticle' as sample particle 
-	// and 'MyFitnessFunction' as finess function)
-	Swarm swarm = new Swarm(Swarm.DEFAULT_NUMBER_OF_PARTICLES
-			, new MyParticle()
-			, new MyFitnessFunction());
-	// Set position (and velocity) constraints. 
-	// i.e.: where to look for solutions
-	swarm.setMaxPosition(1);
-	swarm.setMinPosition(0);
-	// Optimize a few times
-	for( int i = 0; i < 20; i++ ) swarm.evolve();
-	// Print en results
-	System.out.println(swarm.toStringStats())
+	
+	public static void main() {
+	
+		// Create a swarm (using 'MyParticle' as sample particle 
+		// and 'MyFitnessFunction' as fitness function)
+		Swarm swarm = new Swarm(Swarm.DEFAULT_NUMBER_OF_PARTICLES
+				, new MyParticle() //car agent 
+				, new MyFitnessFunction()); //constraints
+	
+	 	// Use neighborhood 
+	 	Neighborhood neigh = new Neighborhood1D(Swarm.DEFAULT_NUMBER_OF_PARTICLES / 5, true);
+	 	swarm.setNeighborhood(neigh); 
+	 	swarm.setNeighborhoodIncrement(0.9); 
+	   
+	 	// Tune swarm's update parameters (if needed) 
+	 	swarm.setInertia(0.95);
+	 	swarm.setParticleIncrement(0.8); 
+	 	swarm.setGlobalIncrement(0.8); 
+	   
+	  
+	 	// Set position (and velocity) constraints. 
+	 	// i.e.: where to look for solutions
+	 	swarm.setMaxPosition(100);
+		swarm.setMinPosition(-100);
+	
+		//show a 2D graph 
+		int numberOfIterations = 5000;
+		int displayEvery = 1;
+		SwarmShow2D ss2d = new SwarmShow2D(swarm, numberOfIterations, displayEvery, true);
+		ss2d.run();
+	
+		//Show best position
+		//double bestPosition[] = ss2d.getSwarm().getBestPosition();
+		//System.out.println("Best position: [" + bestPosition[0] + ", " + bestPosition[1] + " ]\nBest fitness: " + ss2d.getSwarm().getBestFitness() + "\Known Solution: [0.0, 0.0]");
+	}
+	
 }
 
