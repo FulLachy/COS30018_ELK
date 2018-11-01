@@ -2,11 +2,9 @@ package CarCharge;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -22,21 +20,26 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Vector;
 import java.awt.event.ActionEvent;
-import java.awt.SystemColor;
 import javax.swing.JTextField;
-import java.awt.Font;
-import java.awt.List;
 
 import javax.swing.JTextPane;
 import javax.swing.JLabel;
-import javax.swing.SwingConstants;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+
+import jade.wrapper.ControllerException;
+import jade.wrapper.gateway.JadeGateway;
+import jade.core.AID;
+import jade.core.Profile;
+import jade.lang.acl.*;
+import jade.core.behaviours.OneShotBehaviour;
+import jade.util.leap.*;
+
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 
 /**
  * This JFrame is used to display buttons that start and stop the simulation, 
@@ -80,6 +83,7 @@ public class MainFrame extends JFrame implements MainFrameInterface {
     private Thread currthread;
 	private JLabel lblRegistrationNumber;
 	private JTextField txtRegistrationNumber;
+	private String awesomeJadeMsg;
     
     
 	/**
@@ -87,6 +91,7 @@ public class MainFrame extends JFrame implements MainFrameInterface {
 	 */
 	public MainFrame() {
 		initJade();
+		TestJadeComms();
 		setTitle("Car Scheduling System");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //program exits when frame closes
 		setBounds(100, 100, 660, 397);
@@ -95,17 +100,6 @@ public class MainFrame extends JFrame implements MainFrameInterface {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
-		
-		
-        //start simulation and stop simulation buttons
-		JSplitPane splitPane = new JSplitPane();
-		//Start controller button (left)
-	
-		
-		//Stop Controller button (right)
-
-		//		btnSimulation.addActionListener(controller);
-		
 
 		JSplitPane splitPane_1 = new JSplitPane();
 		splitPane_1.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -133,7 +127,7 @@ public class MainFrame extends JFrame implements MainFrameInterface {
 		splitPane_2.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		tabPannel.addTab("Add Cars", null, splitPane_2, null);		
 		
-		slotNum = new DefaultListModel();
+		slotNum = new DefaultListModel<String>();
 		carlist = new JList<String>(slotNum);
 				
 		carlist.setPreferredSize(new Dimension(100,150));
@@ -224,9 +218,55 @@ public class MainFrame extends JFrame implements MainFrameInterface {
 		this.setVisible(true);
 	}
 
+	private void TestJadeComms() {
+		// TODO Auto-generated method stub
+		jade.util.leap.Properties pp = new Properties();
+		pp.setProperty(Profile.MAIN_HOST, "localhost");
+		pp.setProperty(Profile.MAIN_PORT, "1099"); //TODO check PORT
+		JadeGateway.init(null, pp);		
+		try {
+			JadeGateway.checkJADE();
+			JadeGateway.execute(new OneShotBehaviour() {
+			    /**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+
+				public void action() {
+                   ACLMessage inform = new ACLMessage(ACLMessage.REQUEST);
+                   inform.addReceiver(new AID("testJadeComms", AID.ISLOCALNAME));
+                   inform.setContent("Get Timetable");
+                   myAgent.send(inform);
+                   ACLMessage response = myAgent.receive();
+                   final long startTime = System.currentTimeMillis();
+                   if(response == null) {
+                	   while(response == null) {
+                		   	response = myAgent.receive();
+                		   	try {
+                		   		Thread.sleep(10);
+							} catch (InterruptedException e) {								
+								e.printStackTrace();
+							}
+                		   	if((System.currentTimeMillis() - startTime) > 5000) {//5 ms timeout
+                		   		myAgent.doDelete();
+                		   	}
+                	   }
+                	   awesomeJadeMsg = response.toString();
+                	   awesomeJadeMsg = awesomeJadeMsg.substring(awesomeJadeMsg.indexOf(":content") + 10, awesomeJadeMsg.indexOf(":reply-with"));
+                	   System.out.println("Itworks: " + awesomeJadeMsg);
+                   }                   
+			    }
+			});
+		} catch (ControllerException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}	
+
 	private void initJade() {
 		try {
 			Process p = Runtime.getRuntime().exec("java -cp lib\\jade.jar;bin jade.Boot -gui -agents MasterSchedulingAgent:CarCharge.MasterSchedulingAgent");
+			Runtime.getRuntime().exec("cmd /c \"java -cp lib\\jade.jar;bin jade.Boot -container -host localhost -exitwhenempty true -agents testJadeComms:CarCharge.TestClient()\"");
 			mSA = p;					
 		} catch (IOException e1) {					
 			e1.printStackTrace();
@@ -352,25 +392,50 @@ public class MainFrame extends JFrame implements MainFrameInterface {
         rbtngrpStation.add(rbtnSmall);
         rbtngrpStation.add(rbtnMedium);
         btnAddCar.addActionListener(new ActionListener() {			
-			public void actionPerformed(ActionEvent e) {					
-				carcount +=1;
-				slotNum.addElement(txtRegistrationNumber.getText());			
-				String cmd = "cmd /c \"java -cp lib\\jade.jar;bin jade.Boot -container -host localhost -exitwhenempty true -agents carag"+carcount+":CarCharge.CarAgent(\""
-						+ rbtngrpStation.getSelection().getActionCommand() + "\"," + txtMinCharge.getText()
-						+ "," + txtCurrCharge.getText() + "," + txtSTime.getText() + "," + txtEtime.getText() + ")\"";
-				System.out.println(cmd);
-				try {
-					Process p = Runtime.getRuntime().exec(cmd);
-					caragentsPlist.add(p);					
-				} catch (IOException e1) {					
-					e1.printStackTrace();
+			public void actionPerformed(ActionEvent e) {
+				boolean validate = true;
+				
+				if(rbtngrpStation.getSelection() == null) {
+					validate = false;
 				}
-				frame.dispose();
+				else if(txtRegistrationNumber.getText().equalsIgnoreCase("")) {					
+					validate = false;
+				}
+				else if(txtCurrCharge.getText().equalsIgnoreCase(""))
+					validate = false;
+				if(txtMinCharge.getText().equalsIgnoreCase("")) {
+					validate = false;
+				}
+				else if(txtSTime.getText().equalsIgnoreCase("")) {
+					validate = false;
+				}
+				else if(txtEtime.getText().equalsIgnoreCase(""))
+					validate = false;
+				
+				if(validate) {
+					carcount +=1;
+					slotNum.addElement(txtRegistrationNumber.getText());			
+					String cmd = "cmd /c \"java -cp lib\\jade.jar;bin jade.Boot -container -host localhost -exitwhenempty true -agents carag"+carcount+":CarCharge.CarAgent(\""
+							+ rbtngrpStation.getSelection().getActionCommand() + "\"," + txtMinCharge.getText()
+							+ "," + txtCurrCharge.getText() + "," + txtSTime.getText() + "," + txtEtime.getText() + ")\"";
+					System.out.println(cmd);
+					try {
+						Process p = Runtime.getRuntime().exec(cmd);
+						caragentsPlist.add(p);					
+					} catch (IOException e1) {					
+						e1.printStackTrace();
+					}
+					frame.dispose();
+				}
+				else {
+					TestJadeComms();
+					JOptionPane.showMessageDialog(null, "Fill all of the information! Jade Says: " + awesomeJadeMsg , "Input Error", JOptionPane.INFORMATION_MESSAGE);
+										
+				}
 			}
 		});
 		frame.pack();
-		frame.setVisible(true);
-		
+		frame.setVisible(true);		
 	}
 
 	/**
