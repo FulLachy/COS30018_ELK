@@ -6,15 +6,18 @@ import net.sourceforge.jswarm_pso.FitnessFunction;
 
 public class Schedule {
 	
-	//List of ChargeStations
+	//private
 	private int totalStations = 0;
 	
+	//public
 	public int slow;
 	public int medium;
 	public int fast;
 	
+	//All the stations
 	public LinkedList<ChargeStation> chargeStations = new LinkedList<ChargeStation>();
 	
+	//Upon schedule creation the number of stations is created as well as types of stations. 
 	public Schedule(int numberOfSlow, int numberOfMedium, int numberOfFast)
 	{
 		totalStations = numberOfSlow + numberOfMedium + numberOfFast;; 
@@ -43,7 +46,9 @@ public class Schedule {
 		}
 	}
 	
-	public Schedule Clone()
+	
+	//For the purposes of other optimisation techniques such as PSO
+/*	public Schedule Clone()
 	{
 		Schedule clone = new Schedule(slow,medium,fast);
 		
@@ -54,7 +59,9 @@ public class Schedule {
 		
 		return clone;
 	}
+	*/
 	
+	//Removal of car from the schedule
 	public void RemoveCar(String carID)
 	{
 		for(ChargeStation charge : chargeStations)

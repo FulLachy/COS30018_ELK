@@ -16,19 +16,20 @@ import CarInformation.CarInformation;
 public class MasterSchedulingAgent extends Agent{
 
 	//private CyclicBehaviour reply;
-	private TickerBehaviour count;
+	//private TickerBehaviour count;
 	
-	private LinkedList<ACLMessage> messageList = new LinkedList<ACLMessage>();
-	private LinkedList<CarData> carList = new LinkedList<CarData>();
+	//Private Variables
+	private LinkedList<ACLMessage> messageList = new LinkedList<ACLMessage>(); //Message buffering list
+	private LinkedList<CarData> carList = new LinkedList<CarData>(); //Car list for sharing consistent information with Algorithms
+	private ConstraintSatisfaction CS; // Algorithm used
 	
-	private ConstraintSatisfaction CS;
-	
+	//Number of stations and station types
 	private int NumberOfStations;
 	private int numberOfSlow;
 	private int numberOfMedium;
 	private int numberOfFast;
 	
-	
+	//Creates new behaviours and starts algorithm
 	@Override
 	protected void setup()
 	{
@@ -38,6 +39,7 @@ public class MasterSchedulingAgent extends Agent{
 		this.addBehaviour(new GetCarMessage());
 	}
 	
+	//Parses in types of stations
 	private void GetArguments()
 	{
 		Object[] args = getArguments();
@@ -48,24 +50,30 @@ public class MasterSchedulingAgent extends Agent{
 		NumberOfStations = numberOfSlow + numberOfMedium + numberOfFast;
 	}
 	
+	//Behaviour for sending and receiving messages from Car Agents
 	private class GetCarMessage extends CyclicBehaviour
 	{
+		//Startup
 		private GetCarMessage()
 		{
 			System.out.println(getLocalName() + ": Cyclic Behaviour Started");
 		}
 		
+		//
 		@Override
 		public void action()
 		{
 			System.out.println(getLocalName() + ": Waiting for Message");
+			//Doesn't do anything until it gets a message 
 			ACLMessage message = blockingReceive();
 			
+			//adds messages to list
 			if(message != null)
 			{
 				messageList.add(message);	
 			}
 			
+			//Goes through list to extrapolate data
 			if (messageList.size() > 0)
 			{
 				ACLMessage firstMessage = messageList.get(0);
@@ -73,15 +81,20 @@ public class MasterSchedulingAgent extends Agent{
 				
 				System.out.println(getLocalName() + ": Received Message from" + firstMessage.getSender().getLocalName());
 				
+				//Gets read to reply
 				ACLMessage reply = message.createReply();
 				AID sender = (AID) reply.getAllReceiver().next();
 				CarInformation preferenceMessage = null;
 				String car = message.getSender().getLocalName();
 				
+				//Message Type dependant
 				switch (message.getPerformative())
 				{
+					//Where the requests and information is extrapolated and organised
 					case ACLMessage.REQUEST:
 						String carID = null;
+						
+						//Gets preference data
 						try
 						{
 							preferenceMessage = (CarInformation) message.getContentObject();
@@ -92,12 +105,14 @@ public class MasterSchedulingAgent extends Agent{
 							ue.printStackTrace();
 						}
 						
+						//If the data makes sense
 						if(carID != null && !DoesCarExist(carID))
 						{
 							boolean isInRange;
 							isInRange = preferenceMessage.reqStartTime >=0.0;
 							isInRange = isInRange && preferenceMessage.reqFinishTime <=48.00;
 							
+							//Makes sure the car can even be slotted 
 							if(isInRange&&AddCar(preferenceMessage))
 							{
 								System.out.println(getLocalName() +": " + message.getSender());
@@ -110,6 +125,7 @@ public class MasterSchedulingAgent extends Agent{
 								reply.setContent("Cannot be Scheduled");
 							}
 						}
+						//If the preference data doesn't work
 						else
 						{
 							//Must try and update car preference
@@ -123,15 +139,19 @@ public class MasterSchedulingAgent extends Agent{
 						break;
 					
 					case ACLMessage.CONFIRM:
+						//Just in Case
 						System.out.println("Confirm");
 						break;
 					
 					case ACLMessage.DISCONFIRM:
+						//Just in Case
 						System.out.println("Disconfirm");
 						break;
 						
 					case ACLMessage.INFORM:
+						//Just in Case
 						System.out.println("Master knows that " + message.getSender().getLocalName() + " is in their spot");
+						break;
 				}
 			
 			}
@@ -164,6 +184,8 @@ public class MasterSchedulingAgent extends Agent{
 		count.stop();
 		this.removeBehaviour(count);
 	}*/
+	
+	//Adds car preferences and transforms into car data for algorithm 
 	public boolean AddCar(CarInformation preferences)
 	{
 		CarData cd = new CarData();
@@ -176,10 +198,14 @@ public class MasterSchedulingAgent extends Agent{
 		cd.FindPreferenceSlot();		
 		
 		carList.add(cd);
+		
+		//create schedule
 		Schedule temp = CS.CreateSchedule();
 		
+		//If the algorithm is working loop
 		while(!CS.ready) {}
 		
+		//If the car exists then great
 		if (DoesCarExist(cd.carId))
 		{
 			CS.schedule = temp;
@@ -189,6 +215,8 @@ public class MasterSchedulingAgent extends Agent{
 		return false;
 	}
 	
+	//Checks if the preference data has been sent and already exists
+	//Checks if the car exists in the list and therefore has been sorted
 	public boolean DoesCarExist(String carID)
 	{
 		for (int i = 0; i< carList.size(); i++)
@@ -201,9 +229,10 @@ public class MasterSchedulingAgent extends Agent{
 		return false;
 	}
 	
+	/*
 	public boolean RemoveCar(int id)
 	{
 		return true;
 	}
-	
+	*/
 }

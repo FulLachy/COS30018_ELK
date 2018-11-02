@@ -18,6 +18,9 @@ import Algorithm.MyParticle;
 
 public class ParticleSwarm  {
 	
+	//Create a schedule
+	//Car list
+	
 	public static void main() {
 	
 		// Create a swarm (using 'MyParticle' as sample particle 
@@ -45,9 +48,23 @@ public class ParticleSwarm  {
 	
 		//show a 2D graph 
 		int numberOfIterations = 5000;
-		int displayEvery = 1;
-		SwarmShow2D ss2d = new SwarmShow2D(swarm, numberOfIterations, displayEvery, true);
-		ss2d.run();
+		
+		//for the number of iterations
+			//for the number of particles
+				//Randomise starting location
+				//If hard constraints are met
+					//If this is the best in accordance to the fitness function
+						//Apply this to being the best particle
+				//Else
+					//new location
+					//break;
+		
+		//For each particle
+			//addd to schedule
+		
+		//int displayEvery = 1;
+		//SwarmShow2D ss2d = new SwarmShow2D(swarm, numberOfIterations, displayEvery, true);
+		//ss2d.run();
 	
 		//Show best position
 		//double bestPosition[] = ss2d.getSwarm().getBestPosition();

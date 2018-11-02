@@ -14,6 +14,7 @@ public class ScheduledCar
 	
 	public double timeOnCharge;
 	
+	//Finds the most suitable station slot type for the type of car
 	public void FindPreferenceSlot()
 	{
 		if(type == carType.Small)
@@ -30,10 +31,10 @@ public class ScheduledCar
 		}
 	}
 	
+	//To BE COMPLETED
+	//Calculate how long it will actually take so time isn't wasted 
 	public double CalculateTime(StationType sType, double tempStartTime)
 	{
-		
-		
 		switch(type)
 		{
 			case Small:

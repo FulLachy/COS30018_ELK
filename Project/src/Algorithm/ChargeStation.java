@@ -6,17 +6,18 @@ import CarCharge.CarData;
 
 public class ChargeStation {
 
-	public int chargerNumber = 0;
-	public StationType stationType;
+	//Public Variables
+	public int chargerNumber = 0; //Unique Identifier
+	public StationType stationType; //Station type
+	public LinkedList<ScheduledCar> allotedCars = new LinkedList<ScheduledCar>();	//List of cars that will be or have been assigned 
 	
-	public LinkedList<ScheduledCar> allotedCars = new LinkedList<ScheduledCar>();	
-	
+	//Instantiation 
 	public ChargeStation(int num, StationType type) {
 		chargerNumber = num;
 		stationType = type;
 	}
 	
-	
+	//Was to be used for consisntency
 	public void OrderByStartTime()
 	{
 		for (int i = 0; i < allotedCars.size(); i++)
@@ -45,6 +46,7 @@ public class ChargeStation {
 		}
 	}
 	
+	//For finding the highest possible starting time dependant on station type and car type
 	public double GetMaxStartTime(CarData cd)
 	{
 		double hourlyCharge = 0;
@@ -76,6 +78,7 @@ public class ChargeStation {
 		
 	}
 	
+	//Cloning function for PSO or possible Genetic Algorithm
 	public ChargeStation Clone()
 	{
 		ChargeStation clone = new ChargeStation(chargerNumber, stationType);

@@ -6,24 +6,22 @@ import CarCharge.CarData;
 
 public class ConstraintSatisfaction {
 
-	private int numStations;
-	private boolean firstCarSlotted = true;
+	//Private
+	private int numStations; //Total number of stations
+	private boolean firstCarSlotted = true; //Is it the first car slotted
+	private LinkedList<CarData> CarList; //Linked list which is identical to MSA's 
+	private LinkedList<ScheduledCar> unusedCars = new LinkedList<ScheduledCar>(); //The cars that don't hit their soft constraints
 	
-	//private LinkedList<Schedule> schedule;
+	//Number of station types
+	private int slow;
+	private int medium; 
+	private int fast;
 	
-	private LinkedList<CarData> CarList;
-	public Schedule schedule = null;
-
-	private LinkedList<ScheduledCar> unusedCars = new LinkedList<ScheduledCar>();
-	public boolean ready = false;
+	//Public
+	public Schedule schedule = null; //A new schedule
+	public boolean ready = false; //For the MSA so multiple CAs don't access the same variables
 	
-	int slow;
-	int medium; 
-	int fast;
-	//int numberOfMedium; 
-	//int numberOfFast;
-	
-	
+	//Defines the different variables for the constraint algorithm
 	public ConstraintSatisfaction(LinkedList<CarData> list, int stations,int numberOfSlow, int numberOfMedium, int numberOfFast)
 	{
 		CarList = list;
@@ -31,6 +29,7 @@ public class ConstraintSatisfaction {
 		CreateSchedule(numberOfSlow, numberOfMedium, numberOfFast);
 	}
 	
+	//creates a schedule, assigns variables
 	private void CreateSchedule(int numberOfSlow, int numberOfMedium, int numberOfFast)
 	{
 		if(schedule == null)
@@ -43,6 +42,7 @@ public class ConstraintSatisfaction {
 		}
 	}
 	
+	//Gets a scheduled car based on its position in the Car List
 	private ScheduledCar GetScheduledCar(int i)
 	{
 		CarData cd = CarList.get(i);
@@ -57,6 +57,7 @@ public class ConstraintSatisfaction {
 		return sc;
 	}
 	
+	//Orders Cars by Start Time for Optimal Constraints
 	public void OrderCarsByStartTime()
 	{
 		if(CarList.size() > 1)
@@ -88,6 +89,7 @@ public class ConstraintSatisfaction {
 		}
 	}
 	
+	//Does the car Exist within any station 
 	public boolean DoesCarExist(String id)
 	{
 		for (int i = 0; i < schedule.chargeStations.size(); i++)
@@ -106,6 +108,7 @@ public class ConstraintSatisfaction {
 		return false;
 	}
 	
+	//Used for testing
 	public void PrintNames()
 	{
 		for (int y = 0; y < CarList.size(); y++)
@@ -114,45 +117,64 @@ public class ConstraintSatisfaction {
 		}
 	}
 	
+	//The creation of a schedule using constraint satisfaction 
 	public Schedule CreateSchedule()
 	{
+		//Makes sure nothing else can access it and initialises variabels
 		firstCarSlotted = true;
 		ready = false;
-		
-		PrintNames();
-		System.out.println(CarList.size());
-		
-		System.out.println(slow + " " + medium + " " + fast);
 		ChargeStation bestStation = null;
+		
+		//new Schedule so alterations don't occur
 		Schedule s = new Schedule(slow, medium, fast);
 		
 		
+		//For Testing
+		////PrintNames();
+		////System.out.println(CarList.size());
+		
+		////System.out.println(slow + " " + medium + " " + fast);
+		
+		//Goes through the Car List
 		for(int i=0; i< CarList.size(); i++)
 		{
+			//Initialises Clash	
 			boolean clash = false;
 			ScheduledCar sc = new ScheduledCar();
 			sc = GetScheduledCar(i);
 			
+			//If it's the first car slotted immediately put it in the list
 			if (firstCarSlotted == false)
 			{
+				//Turned off Ordering to remove errors
 				//OrderCarsByStartTime();
 				clash = false;
 				boolean correctStationType = true;
 				
+				//Goes through all stations
 				for(int a=0; a<numStations; a++)
 				{
+					//Assigns assumptions for each station: If they are set to false after
+					//the loop then they are added to the other car list
 					clash = false;
 					correctStationType = true;
 					
+					//Assigns new station based on the current station in the loop
 					ChargeStation cs = s.chargeStations.get(a);
 					
+					//If a car slot does not have any slots
 					if (cs.allotedCars.size()!= 0)
 					{
+						//More Assumptions
 						clash = false;
-						System.out.println(cs.allotedCars.size() + " What?");
+						
+						//Testing
+						////System.out.println(cs.allotedCars.size() + " What?");
+						
 						if(cs.stationType != sc.preferredStationSlot)
 						{
-							System.out.println("Not Right Type");
+							//Testing
+							////System.out.println("Not Right Type");
 							correctStationType = false;
 						}
 						else
@@ -163,7 +185,8 @@ public class ConstraintSatisfaction {
 								if(CheckClash(sc, other,cs.stationType))
 								{
 									clash = true;
-									System.out.println(clash);
+									//Testing
+									//System.out.println(clash);
 									break;
 								}
 							}
@@ -176,7 +199,8 @@ public class ConstraintSatisfaction {
 								
 								if(bestStation == null)
 								{
-									System.out.println("Best Station");
+									//Testing
+									////System.out.println("Best Station");
 									bestStation = cs;
 								}
 								else
@@ -192,10 +216,12 @@ public class ConstraintSatisfaction {
 						
 					}
 					else
+						
 					{
 						if(cs.stationType != sc.preferredStationSlot)
 						{
-							System.out.println("Not Right Type 2");
+							//Testing
+							//System.out.println("Not Right Type 2");
 							correctStationType = false;
 							break;
 						}
@@ -205,8 +231,10 @@ public class ConstraintSatisfaction {
 							correctStationType = true;
 							sc.startTime = sc.startRequested;
 							
-							System.out.println("It Got Here");
-							
+							//Testing
+							//System.out.println("It Got Here");
+			
+							//Assignment using match Charge Station for Safety
 							for(int u = 0; u < s.chargeStations.size(); u++)
 							{
 								if (s.chargeStations.get(u).chargerNumber == cs.chargerNumber)
@@ -221,14 +249,20 @@ public class ConstraintSatisfaction {
 					
 				}
 				
+				
+				//If it clashes or is wrong type without having a best station
 				if((!correctStationType||clash) && bestStation == null)
 				{
-					System.out.println("Final Clash");
+					//Testing
+					//System.out.println("Final Clash");
 					unusedCars.add(sc);
 				}
+				
+				//Assigns station
 				else
 				{
-					System.out.println("There's a New Sheriff");
+					//Testing
+					//System.out.println("There's a New Sheriff");
 					for(int a = 0; a < numStations; a++)
 					{
 						if (bestStation == s.chargeStations.get(a))
@@ -239,16 +273,21 @@ public class ConstraintSatisfaction {
 					}
 				}
 			}	
+			//Happens when first car is slotted
 			else
 			{
+				//tempBool is for safety
 				boolean tempBool = true;
 				firstCarSlotted = false;
+				
+				//Assigning the first car
 				for(int i1=0; i1 < s.chargeStations.size(); i1++)
 				{
 					tempBool = true;
 					if(s.chargeStations.get(i1).stationType == CarList.get(0).preferredStationSlot)
 					{
 						s.chargeStations.get(i1).allotedCars.add(GetScheduledCar(0));
+						//Leaving in for clarity
 						System.out.println("Successful First Placement");
 						break;
 					}
@@ -257,6 +296,7 @@ public class ConstraintSatisfaction {
 						tempBool = false;
 					}
 				}
+				//if it can't find the correct station adds to the very first station
 				if (tempBool = false)
 				{
 					s.chargeStations.get(0).allotedCars.add(GetScheduledCar(0));
@@ -264,12 +304,14 @@ public class ConstraintSatisfaction {
 			}
 		}
 		
+		//Re instantiating for unused cars
 		boolean clash = false;
 		
-		
+		// GOes through the unused cars to try and assign them anywhere
 		if (unusedCars.size() > 0)
 		{
-			System.out.println("Is it here too?");
+			//Testing
+			//System.out.println("Is it here too?");
 			for(int o =0; o < unusedCars.size(); o++)
 			{		
 				ScheduledCar sc = unusedCars.get(o);
@@ -293,18 +335,12 @@ public class ConstraintSatisfaction {
 						{
 							sc.startTime = sc.startRequested;
 							cs.allotedCars.add(sc);
-							System.out.println("The End");
+							System.out.println("Assigned Non Preferred");
 							break;
 						}
 					}
 				}
 			}	
-		}
-		
-		if(clash)
-		{
-			
-			
 		}
 		
 		/*for (int i = 0; i < CarList.size(); i++)
@@ -318,6 +354,7 @@ public class ConstraintSatisfaction {
 			{
 				if (CarList.get(e).carId == unusedCars.get(o).id)
 				{
+					//Commented out due to bugs
 					//CarList.remove(e);			
 				}
 			}
@@ -328,6 +365,7 @@ public class ConstraintSatisfaction {
 		
 	}
 		
+	//The Gap between two cars for checking which of multiple stations is more appropriate 
 	private double ReturnGap(ChargeStation cs, ScheduledCar sc)
 	{
 		ChargeStation temp = cs;
@@ -346,7 +384,7 @@ public class ConstraintSatisfaction {
 		return 0;
 	}
 	
-	private LinkedList<CarData> OrganiseCarData()
+/*	private LinkedList<CarData> OrganiseCarData()
 	{
 		LinkedList<CarData> tempList = new LinkedList<CarData>();
 		//CarList.a
@@ -361,10 +399,12 @@ public class ConstraintSatisfaction {
 		}
 		
 		return tempList;
-	}
+	}*/
 	
+	//Checks if two cars clash
 	private boolean CheckClash(ScheduledCar newCar, ScheduledCar comparingCar, StationType station)
 	{
+		//Automatically clash if starting times are the same
 		if(newCar.startRequested == comparingCar.startRequested)
 		{
 			return true;
@@ -372,6 +412,7 @@ public class ConstraintSatisfaction {
 		
 		double start,end,middleTest;
 		
+		//If the car that is trying to get into the slot starts after
 		if(comparingCar.startRequested >= newCar.startRequested)
 		{
 			start = newCar.startRequested;
@@ -382,6 +423,8 @@ public class ConstraintSatisfaction {
 			}
 			middleTest = comparingCar.startRequested;
 		}
+		
+		//If the car that is trying to get into the slot starts before
 		else
 		{
 			start = comparingCar.startRequested;
@@ -392,8 +435,7 @@ public class ConstraintSatisfaction {
 			}
 			middleTest = newCar.startRequested;
 		}
-		
-		
+	
 		return (middleTest<end);
 	}
 	/*
