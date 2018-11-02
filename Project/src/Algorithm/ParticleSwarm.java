@@ -22,6 +22,7 @@ public class ParticleSwarm  {
 	
 		// Create a swarm (using 'MyParticle' as sample particle 
 		// and 'MyFitnessFunction' as fitness function)
+		// Amount of particles is now amount of cars 
 		Swarm swarm = new Swarm(Swarm.DEFAULT_NUMBER_OF_PARTICLES
 				, new MyParticle() //car agent 
 				, new MyFitnessFunction()); //constraints
@@ -39,8 +40,8 @@ public class ParticleSwarm  {
 	  
 	 	// Set position (and velocity) constraints. 
 	 	// i.e.: where to look for solutions
-	 	swarm.setMaxPosition(100);
-		swarm.setMinPosition(-100);
+	 	swarm.setMaxPosition(48.00);
+		swarm.setMinPosition(0.00);
 	
 		//show a 2D graph 
 		int numberOfIterations = 5000;

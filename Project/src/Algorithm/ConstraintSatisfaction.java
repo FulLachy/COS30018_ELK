@@ -193,7 +193,6 @@ public class ConstraintSatisfaction {
 					}
 					else
 					{
-						
 						if(cs.stationType != sc.preferredStationSlot)
 						{
 							System.out.println("Not Right Type 2");
@@ -215,24 +214,21 @@ public class ConstraintSatisfaction {
 									s.chargeStations.get(u).allotedCars.add(sc);
 								}
 							}
+							break;
 						}
 						
 					}
 					
 				}
 				
-				if(!correctStationType)
+				if((!correctStationType||clash) && bestStation == null)
 				{
+					System.out.println("Final Clash");
 					unusedCars.add(sc);
-				}
-				
-				if(clash)
-				{
-					System.out.println("Hello");
-					unusedCars.add(sc);				
 				}
 				else
 				{
+					System.out.println("There's a New Sheriff");
 					for(int a = 0; a < numStations; a++)
 					{
 						if (bestStation == s.chargeStations.get(a))
@@ -245,23 +241,26 @@ public class ConstraintSatisfaction {
 			}	
 			else
 			{
-				//int tempBool = true;
+				boolean tempBool = true;
 				firstCarSlotted = false;
 				for(int i1=0; i1 < s.chargeStations.size(); i1++)
 				{
+					tempBool = true;
 					if(s.chargeStations.get(i1).stationType == CarList.get(0).preferredStationSlot)
 					{
 						s.chargeStations.get(i1).allotedCars.add(GetScheduledCar(0));
-						System.out.println("Help");
+						System.out.println("Successful First Placement");
 						break;
 					}
+					else
+					{
+						tempBool = false;
+					}
 				}
-				
-				//tempBool = false;
-				
-				
-				//s.chargeStations.get(0).allotedCars.add(GetScheduledCar(0));
-				
+				if (tempBool = false)
+				{
+					s.chargeStations.get(0).allotedCars.add(GetScheduledCar(0));
+				}	
 			}
 		}
 		
@@ -279,6 +278,7 @@ public class ConstraintSatisfaction {
 					ChargeStation cs = s.chargeStations.get(a);
 					if (cs.allotedCars.size()!= 0)
 					{
+						clash = false;
 						for(int e = 0; e < cs.allotedCars.size();e++)
 						{
 							ScheduledCar other = cs.allotedCars.get(e);
@@ -293,6 +293,7 @@ public class ConstraintSatisfaction {
 						{
 							sc.startTime = sc.startRequested;
 							cs.allotedCars.add(sc);
+							System.out.println("The End");
 							break;
 						}
 					}
@@ -306,13 +307,18 @@ public class ConstraintSatisfaction {
 			
 		}
 		
+		/*for (int i = 0; i < CarList.size(); i++)
+		{
+			System.out.println(CarList.get(i).carId + " " + CarList.);
+		}*/
+		
 		for (int o =0; o < unusedCars.size();o++)
 		{
 			for(int e=0; e<CarList.size(); e++)
 			{
 				if (CarList.get(e).carId == unusedCars.get(o).id)
 				{
-					CarList.remove(e);			
+					//CarList.remove(e);			
 				}
 			}
 		}

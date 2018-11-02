@@ -1,4 +1,4 @@
-package Algorithm;
+/*package Algorithm;
 	
 import java.util.LinkedList;
 import org.chocosolver.solver.Model;
@@ -31,7 +31,7 @@ public class CSP2 {
 	
 	private void PopulateSchedule(LinkedList<Schedule> schedule)
 	{
-		/*if(schedule == null)
+		if(schedule == null)
 		{
 			population = new LinkedList<Schedule>();
 			
@@ -40,7 +40,7 @@ public class CSP2 {
 				population.add(CreateSchedule());
 			}
 		}
-		else*/
+		else
 	}
 	
 	private ScheduledCar GetScheduledCar(int i)
@@ -89,7 +89,7 @@ public class CSP2 {
 	{
 		Model model = new Model("Schedule");
 		ChargeStation bestStation = null;
-		Schedule s = new Schedule(numStations);
+		//Schedule s = new Schedule(numStations);
 		OrderCarsByStartTime();
 		
 		for(int i=0; i< CarList.size(); i++)
@@ -172,9 +172,9 @@ public class CSP2 {
 				{
 					for(int a = 0; a < numStations; a++)
 					{
-						if (bestStation == s.chargeStations.get(a))
+						//if (bestStation == s.chargeStations.get(a))
 						{
-							s.chargeStations.get(a).allotedCars.add(sc);
+							//s.chargeStations.get(a).allotedCars.add(sc);
 						}
 					}
 				}
@@ -289,7 +289,7 @@ public class CSP2 {
 		
 		return (middleTest<end);
 	}
-	/*
+	
 	private ScheduledCar CreateCarSlot(int i)
 	{
 		CarData cd = CarList.get(i);
@@ -303,9 +303,10 @@ public class CSP2 {
 		
 		return car;
 	}
-	*/
+	
 	
 }
 	
 
 
+*/

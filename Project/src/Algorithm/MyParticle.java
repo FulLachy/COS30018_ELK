@@ -9,6 +9,7 @@ public class MyParticle extends Particle {
 	public MyParticle() {
 		super(NUMBER_OF_DIMENSIONS); //creates a 2-dimensional particle
 		//particle data
+		//Car Data
 	}
 }
 
